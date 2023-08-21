@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDTO } from 'src/dtos/create-user.dto';
 import { User } from './entities/user-entity';
 import { Tweet } from './entities/tweet.entity';
@@ -11,20 +11,9 @@ export class AppService {
     tweets: Tweet[];
 
     constructor() {
-        this.users = [
-            new User("didi", "https://avatars.akamai.steamstatic.com/d322ffa327f56fcebc08ac76b340742b930648c8_full.jpg"),
-            new User("let", "https://avatars.akamai.steamstatic.com/d322ffa327f56fcebc08ac76b340742b930648c8_full.jpg"),
-            new User("thicode", "https://avatars.akamai.steamstatic.com/d322ffa327f56fcebc08ac76b340742b930648c8_full.jpg"),
-            new User("spongebob", "https://avatars.akamai.steamstatic.com/d322ffa327f56fcebc08ac76b340742b930648c8_full.jpg")
-        ];
-
-        this.tweets = [
-            new Tweet(this.users[0], "You like krabby patties, dont you @Squidward?"),
-            new Tweet(this.users[1], "You like krabby patties, dont you?"),
-            new Tweet(this.users[2], "You like krabby patties, dont?"),
-            new Tweet(this.users[3], "You like krabby patties?")
-        ];
-    }
+        this.users = [];
+        this.tweets = [];
+    }   
 
     getUsers() {
         return this.users;
@@ -35,9 +24,49 @@ export class AppService {
         return this.users.push(user);
     }
 
-    getTweet() {
-        const last = this.tweets.slice(this.tweets.length - 15);
-        return last;
+    getTweet(page: number) {
+        console.log(page);
+        let last = [];
+        if(page === undefined){
+            last = this.tweets.slice(this.tweets.length-15);
+        }else if(page < 1){
+            throw new BadRequestException();
+        }else if(page == 1){
+            last = this.tweets.slice(this.tweets.length-15);
+        }else if(page > 1){
+            let fim = this.tweets.length - (15 * (page-1));
+            let inicio = this.tweets.length - (15 * page);
+            if(fim > 0 && inicio >= 0){
+                last = this.tweets.slice(inicio, fim);
+            }else if(fim > 0 && inicio < 0){
+                last = this.tweets.slice(0, fim);
+            }else if(fim === 0){
+                last = this.tweets.slice(fim);
+            }
+        
+        }
+        let formatTweet = []
+        last.forEach(tweet => {
+            formatTweet.push({
+                username: tweet.user.username,
+                avatar: tweet.user.avatar,
+                tweet: tweet.tweet
+            })
+        });
+        return formatTweet;
+    }
+
+    getUserTweet(user: string) {
+        const last = this.tweets.filter(tweet => tweet.user.username === user);
+        let formatTweet = []
+        last.forEach(tweet => {
+            formatTweet.push({
+                username: tweet.user.username,
+                avatar: tweet.user.avatar,
+                tweet: tweet.tweet
+            })
+        });
+        return formatTweet;
     }
 
     createTweet(tweet: CreateTweetDTO) {
@@ -46,11 +75,11 @@ export class AppService {
             const newTweet = new Tweet(this.users[existUser], tweet.tweet);
             return this.tweets.push(newTweet);
         } else {
-            throw new UnauthorizedException()
+            throw new UnauthorizedException();
         }
     }
 
     getHello(): string {
-        return 'Hello World!';
+        return "I'm okay!";
     }
 }

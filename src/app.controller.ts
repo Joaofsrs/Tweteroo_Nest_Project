@@ -1,10 +1,10 @@
 import { AppService } from './app.service';
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Param, HttpCode, Query } from '@nestjs/common';
 import { CreateUserDTO } from './dtos/create-user.dto';
 import { CreateTweetDTO } from './dtos/create-tweet.dto';
 
 
-@Controller('teste')
+@Controller('')
 export class AppController {
     constructor(private readonly appService: AppService) { }
 
@@ -25,6 +25,7 @@ export class UsersController {
     }
 
     @Post()
+    @HttpCode(200)
     createUser(@Body() body: CreateUserDTO) {
         return this.appService.createUser(body);
     }
@@ -37,14 +38,13 @@ export class TweetsController {
     constructor(private appService: AppService) { }
 
     @Get()
-    getTweet() {
-        return this.appService.getTweet();
+    getTweet(@Query('page') page: number) {
+        return this.appService.getTweet(page);
     }
 
     @Get(":username")
-    findOne(username: string) {
-        console.log(username);
-        return username; // usuário correspondente ao id
+    findOne(@Param('username') username: string) {
+        return this.appService.getUserTweet(username); // usuário correspondente ao id
     }
 
     @Post()
