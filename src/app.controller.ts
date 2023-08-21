@@ -49,7 +49,7 @@ export class TweetsController {
 
   @Post()
   createTweet(@Body() body: CreateTweetDTO) {
-    return "this.usersService.createUser(body)";
+    return this.appService.createTweet(body);
   }
 
 }

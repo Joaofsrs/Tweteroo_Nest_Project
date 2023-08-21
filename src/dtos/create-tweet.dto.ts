@@ -3,7 +3,7 @@ import { IsString } from "class-validator";
 export class CreateTweetDTO {
 
     @IsString()
-    user: string;
+    username: string;
 
     @IsString()
     tweet: string;

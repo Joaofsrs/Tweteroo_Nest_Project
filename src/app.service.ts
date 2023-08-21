@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDTO } from 'src/dtos/create-user.dto';
 import { User } from './entities/user-entity';
 import { Tweet } from './entities/tweet.entity';
@@ -7,8 +7,8 @@ import { CreateTweetDTO } from './dtos/create-tweet.dto';
 
 @Injectable()
 export class AppService {
-  private users: User[];
-  private tweets: Tweet[];
+  users: User[];
+  tweets: Tweet[];
 
   constructor() {
     this.users = [
@@ -40,9 +40,14 @@ export class AppService {
     return last;
   }
 
-  createTweet(body: CreateTweetDTO) {
-    //const tweet = new Tweet(body.username, body.avatar);
-    return "this.tweets.push(tweet)";
+  createTweet(tweet: CreateTweetDTO) {
+    const existUser = this.users.findIndex(user => tweet.username === user.username);
+    if(existUser !== -1){
+      const newTweet = new Tweet(this.users[existUser], tweet.tweet);
+      return this.tweets.push(newTweet);
+    }else{
+      throw new UnauthorizedException()
+    }
   }
 
   getHello(): string {
