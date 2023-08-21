@@ -3,7 +3,7 @@ import { AppController, TweetsController, UsersController } from './app.controll
 import { AppService } from './app.service';
 
 @Module({
-  controllers: [AppController, TweetsController, UsersController],
-  providers: [AppService],
+    controllers: [AppController, TweetsController, UsersController],
+    providers: [AppService],
 })
 export class AppModule { }
